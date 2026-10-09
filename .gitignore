@@ -1,0 +1,11 @@
+.env
+
+uv.lock
+
+pyproject.toml
+
+requirement.txt
+
+.venv
+
+__pycache__
