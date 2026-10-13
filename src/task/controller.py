@@ -5,6 +5,7 @@ from src.task.models import TaskModel
 from fastapi import HTTPException
 
 
+# create task
 def create_task(body: TaskSchema, db: Session):
     data = body.model_dump()
     new_task = TaskModel(
@@ -18,14 +19,45 @@ def create_task(body: TaskSchema, db: Session):
     return {"status": "Task Created Successfully", "data": new_task}
 
 
+# get all the task
 def get_tasks(db: Session):
     tasks = db.query(TaskModel).all()
     return {"status": "All tasks", "data": tasks}
 
 
+# get task by ID
 def get_one_task(task_id: int, db: Session):
     one_task = db.query(TaskModel).get(task_id)
     if not one_task:
         raise HTTPException(404, detail="ID is incorrect")
 
     return {"status": "Task Fethced successfully", "data": one_task}
+
+
+# update the task
+def update_task(body: TaskSchema, task_id: int, db: Session):
+    one_task = db.query(TaskModel).get(task_id)
+    if not one_task:
+        raise HTTPException(404, detail="ID is incorrect")
+
+    bodyDict = body.model_dump()
+    for field, value in bodyDict.items():
+        setattr(one_task, field, value)
+
+    db.add(one_task)
+    db.commit()
+    db.refresh(one_task)
+
+    return {"status": "Task updated successfully", "data": one_task}
+
+
+# delete the task
+def delete_task(task_id: int, db: Session):
+    one_task = db.query(TaskModel).get(task_id)
+    if not one_task:
+        raise HTTPException(404, detail="ID is incorrect")
+
+    db.delete(one_task)
+    db.commit()
+
+    return {"status": "Task Deleted Successfully"}
